@@ -22,3 +22,6 @@ export async function POST(request: Request) {
 
   return new Response(JSON.stringify({ user: data.user }), { status: 200 })
 }
+
+
+
