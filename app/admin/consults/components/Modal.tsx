@@ -10,6 +10,7 @@ type ConsultRequest = {
   surgery_title: string | null
   created_at: string
   status?: string
+  is_member?: boolean // ← 추가
 }
 
 
@@ -54,6 +55,7 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
           <li><strong>신청일:</strong> {new Date(data.created_at).toLocaleString()}</li>
           <li><strong>페이지 출처:</strong> {data.page_source}</li>
           <li><strong>신청 URL:</strong> <a href={data.page_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">{data.page_url}</a></li>
+          <li><strong>회원 여부:</strong> {data.is_member ? '회원' : '비회원'}</li>
         </ul>
 
         <div className="flex gap-2 items-center">

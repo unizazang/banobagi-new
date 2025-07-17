@@ -10,6 +10,7 @@ type ConsultRequest = {
   surgery_title: string | null
   created_at: string
   status?: string // ← 추가
+  is_member?: boolean // ← 여기에 추가
 }
 
 export default function Table({
@@ -32,6 +33,7 @@ export default function Table({
             <th className="px-4 py-2">페이지 URL</th>
             <th className="px-4 py-2">신청일</th>
             <th className="px-4 py-2">상태</th> {/* ✅ 새 열 추가 */}
+            <th className="px-4 py-2">회원 여부</th> {/* ✅ 추가 */}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -60,6 +62,7 @@ export default function Table({
                 {new Date(item.created_at).toLocaleString()}
               </td>
               <td className="px-4 py-2">{item.status ?? '대기'}</td> {/* ✅ 값 표시 */}
+              <td className="px-4 py-2">{item.is_member ? '회원' : '비회원'}</td> {/* ✅ 추가 */}
             </tr>
           ))}
         </tbody>
