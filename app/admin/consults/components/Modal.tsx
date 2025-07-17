@@ -1,22 +1,32 @@
+'use client'
+
 import { useState } from 'react'
-
-type ConsultRequest = {
-  id: number
-  customer_name: string
-  gender: string
-  phone: string
-  page_source: string
-  page_url: string
-  surgery_title: string | null
-  created_at: string
-  status?: string
-  is_member?: boolean // ← 추가
-}
-
+import { ConsultRequest } from '@/types/consult'
 
 export default function Modal({ data, onClose }: { data: ConsultRequest; onClose: () => void }) {
   const [status, setStatus] = useState(data.status ?? '대기')
   const [loading, setLoading] = useState(false)
+  const [note, setNote] = useState(data.note ?? '')
+  const [isImportant, setIsImportant] = useState(data.is_important ?? false)
+
+  const handleSaveNote = async () => {
+    const res = await fetch('/api/admin/update-note', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: data.id,
+        note,
+        page_source: data.page_source, // ✅ 추가
+      }),
+    })
+    const result = await res.json()
+    if (result.success) {
+      alert('메모가 저장되었습니다.')
+      onClose()
+    } else {
+      alert('저장 실패')
+    }
+  }
 
   const handleSave = async () => {
     setLoading(true)
@@ -24,7 +34,11 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
       const res = await fetch('/api/admin/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: data.id, status }),
+        body: JSON.stringify({
+          id: data.id,
+          status,
+          page_source: data.page_source, // ✅ 추가
+        }),
       })
       const result = await res.json()
       if (result.success) {
@@ -37,6 +51,25 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
       alert('오류 발생')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleImportant = async () => {
+    const res = await fetch('/api/admin/update-important', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: data.id,
+        is_important: !isImportant,
+        page_source: data.page_source, // ✅ 추가
+      }),
+    })
+    const result = await res.json()
+    if (result.success) {
+      setIsImportant(!isImportant)
+      alert('중요 표시가 변경되었습니다.')
+    } else {
+      alert('업데이트 실패')
     }
   }
 
@@ -58,15 +91,51 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
           <li><strong>회원 여부:</strong> {data.is_member ? '회원' : '비회원'}</li>
         </ul>
 
-        <div className="flex gap-2 items-center">
+        <div className="mt-4">
+          <label className="block text-sm font-semibold mb-1">메모</label>
+          <textarea
+            className="w-full border rounded px-3 py-2 text-sm"
+            rows={3}
+            placeholder="콜팀 내부용 메모를 작성하세요"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <button
+            onClick={handleSaveNote}
+            className="mt-2 bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+          >
+            메모 저장
+          </button>
+        </div>
+
+        <div className="mt-4 flex gap-2 items-center">
           <label className="text-sm font-semibold">상태:</label>
-          <select className="border px-3 py-1 rounded" value={status} onChange={(e) => setStatus(e.target.value)}>
+          <select
+            className="border px-3 py-1 rounded"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+          >
             <option value="대기">대기</option>
             <option value="처리중">처리중</option>
             <option value="완료">완료</option>
           </select>
-          <button onClick={handleSave} disabled={loading} className="ml-auto bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="ml-auto bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+          >
             {loading ? '저장 중...' : '저장'}
+          </button>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2">
+          <span className="font-semibold text-sm">중요 표시:</span>
+          <button
+            onClick={handleToggleImportant}
+            className={`text-xl ${isImportant ? 'text-yellow-400' : 'text-gray-400'}`}
+            title="중요 표시 토글"
+          >
+            ★
           </button>
         </div>
       </div>

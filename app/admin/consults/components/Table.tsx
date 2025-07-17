@@ -1,17 +1,6 @@
 'use client'
 
-type ConsultRequest = {
-  id: number
-  customer_name: string
-  gender: string
-  phone: string
-  page_source: string
-  page_url: string
-  surgery_title: string | null
-  created_at: string
-  status?: string // ← 추가
-  is_member?: boolean // ← 여기에 추가
-}
+import { ConsultRequest } from '@/types/consult' // ✅ 여기 추가
 
 export default function Table({
   data,
@@ -34,6 +23,7 @@ export default function Table({
             <th className="px-4 py-2">신청일</th>
             <th className="px-4 py-2">상태</th> {/* ✅ 새 열 추가 */}
             <th className="px-4 py-2">회원 여부</th> {/* ✅ 추가 */}
+            <th className="px-4 py-2">★</th> {/* 중요 표시 열 추가 */}
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-100">
@@ -63,6 +53,11 @@ export default function Table({
               </td>
               <td className="px-4 py-2">{item.status ?? '대기'}</td> {/* ✅ 값 표시 */}
               <td className="px-4 py-2">{item.is_member ? '회원' : '비회원'}</td> {/* ✅ 추가 */}
+              <td className="px-4 py-2 text-center"> {/* ✅ 열 데이터 */}
+        <span className={item.is_important ? 'text-yellow-400 text-xl' : 'text-gray-300'}>
+          ★
+        </span>
+      </td>
             </tr>
           ))}
         </tbody>

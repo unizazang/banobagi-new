@@ -2,15 +2,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { FilterValues } from '@/types/consult'
 
-type FilterValues = {
-  name: string
-  phone: string
-  gender: string
-  startDate: string
-  endDate: string
-  sort: 'desc' | 'asc' // 추가
-}
 
 export default function FilterBar({
   onFilterChange,

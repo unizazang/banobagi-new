@@ -4,16 +4,7 @@
 import * as XLSX from 'xlsx'
 import { saveAs } from 'file-saver'
 
-type ConsultRequest = {
-  id: number
-  customer_name: string
-  gender: string
-  phone: string
-  page_source: string
-  page_url: string
-  surgery_title: string | null
-  created_at: string
-}
+import { ConsultRequest } from '@/types/consult' // ✅ 여기 추가
 
 export default function ExportButton({ data }: { data: ConsultRequest[] }) {
   const handleDownload = () => {

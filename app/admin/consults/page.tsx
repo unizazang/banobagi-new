@@ -7,27 +7,12 @@ import Table from './components/Table'
 import FilterBar from './components/FilterBar'
 import Modal from './components/Modal'
 import ExportButton from './components/ExportButton'
-
-type FilterValues = {
-  name: string
-  phone: string
-  gender: string
-  startDate: string
-  endDate: string
-  sort: 'asc' | 'desc'
-}
+import { ConsultRequest, FilterValues } from '@/types/consult'
 
 
-type ConsultRequest = {
-  id: number
-  customer_name: string
-  gender: string
-  phone: string
-  page_source: string
-  page_url: string
-  surgery_title: string | null
-  created_at: string
-}
+
+
+
 
 
 export default function ConsultsPage() {
