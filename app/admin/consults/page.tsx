@@ -9,12 +9,6 @@ import Modal from './components/Modal'
 import ExportButton from './components/ExportButton'
 import { ConsultRequest, FilterValues } from '@/types/consult'
 
-
-
-
-
-
-
 export default function ConsultsPage() {
   const [originalData, setOriginalData] = useState<ConsultRequest[]>([])
   const [filteredData, setFilteredData] = useState<ConsultRequest[]>([])
@@ -31,6 +25,9 @@ export default function ConsultsPage() {
   const handleFilterChange = (filters: FilterValues) => {
   const filtered = originalData
     .filter((item) => {
+      // ✅ 숨김 여부 조건 분기
+      if (!filters.showHidden && item.is_hidden) return false
+
       const matchesName = item.customer_name
         .toLowerCase()
         .includes(filters.name.toLowerCase())
@@ -57,8 +54,7 @@ export default function ConsultsPage() {
 }
 
 
-
-   return (
+  return (
     <main className="p-8 relative">
       <h1 className="text-2xl font-bold mb-4">콜팀 신청 내역 (윤곽)</h1>
       <FilterBar onFilterChange={handleFilterChange} />

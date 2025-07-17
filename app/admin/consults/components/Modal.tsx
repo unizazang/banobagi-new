@@ -8,6 +8,28 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState(data.note ?? '')
   const [isImportant, setIsImportant] = useState(data.is_important ?? false)
+const [isHidden, setIsHidden] = useState(data.is_hidden ?? false)
+
+
+const handleToggleHidden = async () => {
+  const res = await fetch('/api/admin/update-hidden', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      id: data.id,
+      is_hidden: !isHidden,
+      page_source: data.page_source,
+    }),
+  })
+  const result = await res.json()
+  if (result.success) {
+    setIsHidden(!isHidden)
+    alert(`신청서가 ${!isHidden ? '숨김 처리' : '복구'}되었습니다.`)
+    onClose()
+  } else {
+    alert('처리에 실패했습니다.')
+  }
+}
 
   const handleSaveNote = async () => {
     const res = await fetch('/api/admin/update-note', {
@@ -138,6 +160,17 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
             ★
           </button>
         </div>
+        <div className="mt-4">
+  <button
+    onClick={handleToggleHidden}
+    className={`px-4 py-1 rounded ${
+      isHidden ? 'bg-gray-400' : 'bg-red-600 text-white hover:bg-red-700'
+    }`}
+  >
+    {isHidden ? '숨김 해제' : '숨김 처리'}
+  </button>
+</div>
+
       </div>
     </div>
   )

@@ -13,6 +13,8 @@ export type ConsultRequest = {
   is_member?: boolean
   note?: string
   is_important?: boolean
+  is_hidden?: boolean
+
 }
 
 export type FilterValues = {
@@ -22,4 +24,5 @@ export type FilterValues = {
   startDate: string
   endDate: string
   sort: 'asc' | 'desc'
+  showHidden: boolean // ✅ 추가
 }
