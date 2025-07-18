@@ -1,35 +1,45 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ConsultRequest } from '@/types/consult'
+import { getConsultLogs } from '@/lib/getConsultLogs'
 
 export default function Modal({ data, onClose }: { data: ConsultRequest; onClose: () => void }) {
   const [status, setStatus] = useState(data.status ?? '대기')
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState(data.note ?? '')
   const [isImportant, setIsImportant] = useState(data.is_important ?? false)
-const [isHidden, setIsHidden] = useState(data.is_hidden ?? false)
+  const [isHidden, setIsHidden] = useState(data.is_hidden ?? false)
+  const [logs, setLogs] = useState<any[]>([])
 
+  useEffect(() => {
+    const fetchLogs = async () => {
+      const result = await getConsultLogs(data.id, data.page_source as 'face' | 'lifting')
 
-const handleToggleHidden = async () => {
-  const res = await fetch('/api/admin/update-hidden', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      id: data.id,
-      is_hidden: !isHidden,
-      page_source: data.page_source,
-    }),
-  })
-  const result = await res.json()
-  if (result.success) {
-    setIsHidden(!isHidden)
-    alert(`신청서가 ${!isHidden ? '숨김 처리' : '복구'}되었습니다.`)
-    onClose()
-  } else {
-    alert('처리에 실패했습니다.')
+      setLogs(result)
+    }
+    fetchLogs()
+  }, [data.id, data.page_source])
+
+  const handleToggleHidden = async () => {
+    const res = await fetch('/api/admin/update-hidden', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: data.id,
+        is_hidden: !isHidden,
+        page_source: data.page_source,
+      }),
+    })
+    const result = await res.json()
+    if (result.success) {
+      setIsHidden(!isHidden)
+      alert(`신청서가 ${!isHidden ? '숨김 처리' : '복구'}되었습니다.`)
+      onClose()
+    } else {
+      alert('처리에 실패했습니다.')
+    }
   }
-}
 
   const handleSaveNote = async () => {
     const res = await fetch('/api/admin/update-note', {
@@ -38,7 +48,7 @@ const handleToggleHidden = async () => {
       body: JSON.stringify({
         id: data.id,
         note,
-        page_source: data.page_source, // ✅ 추가
+        page_source: data.page_source,
       }),
     })
     const result = await res.json()
@@ -59,7 +69,7 @@ const handleToggleHidden = async () => {
         body: JSON.stringify({
           id: data.id,
           status,
-          page_source: data.page_source, // ✅ 추가
+          page_source: data.page_source,
         }),
       })
       const result = await res.json()
@@ -83,7 +93,7 @@ const handleToggleHidden = async () => {
       body: JSON.stringify({
         id: data.id,
         is_important: !isImportant,
-        page_source: data.page_source, // ✅ 추가
+        page_source: data.page_source,
       }),
     })
     const result = await res.json()
@@ -160,17 +170,33 @@ const handleToggleHidden = async () => {
             ★
           </button>
         </div>
-        <div className="mt-4">
-  <button
-    onClick={handleToggleHidden}
-    className={`px-4 py-1 rounded ${
-      isHidden ? 'bg-gray-400' : 'bg-red-600 text-white hover:bg-red-700'
-    }`}
-  >
-    {isHidden ? '숨김 해제' : '숨김 처리'}
-  </button>
-</div>
 
+        <div className="mt-4">
+          <button
+            onClick={handleToggleHidden}
+            className={`px-4 py-1 rounded ${isHidden ? 'bg-gray-400' : 'bg-red-600 text-white hover:bg-red-700'}`}
+          >
+            {isHidden ? '숨김 해제' : '숨김 처리'}
+          </button>
+        </div>
+
+        {/* ✅ 변경 로그 표시 */}
+        <div className="mt-6">
+          <h3 className="text-sm font-semibold mb-2">변경 로그</h3>
+          {logs.length === 0 ? (
+            <p className="text-sm text-gray-500">로그 없음</p>
+          ) : (
+            <ul className="text-xs border rounded p-2 bg-gray-50 space-y-1 max-h-48 overflow-y-auto">
+              {logs.map((log, idx) => (
+                <li key={idx}>
+                  <strong>{log.changed_field}</strong> 변경: "{log.old_value}" → "{log.new_value}" (
+                  <span className="text-gray-500">{log.changed_by}</span>,{' '}
+                  {new Date(log.created_at).toLocaleString()})
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   )
