@@ -23,36 +23,51 @@ export default function ConsultsPage() {
   }, [])
 
   const handleFilterChange = (filters: FilterValues) => {
-  const filtered = originalData
-    .filter((item) => {
-      // ✅ 숨김 여부 조건 분기
-      if (!filters.showHidden && item.is_hidden) return false
+    const filtered = originalData
+      .filter((item) => {
+        // ✅ 숨김 여부 조건 분기
+        if (!filters.showHidden && item.is_hidden) return false
 
-      const matchesName = item.customer_name
-        .toLowerCase()
-        .includes(filters.name.toLowerCase())
-      const matchesPhone = item.phone.includes(filters.phone)
-      const matchesGender =
-        filters.gender === '' || item.gender === filters.gender
+        const matchesName = item.customer_name
+          .toLowerCase()
+          .includes(filters.name.toLowerCase())
 
-      const createdAt = new Date(item.created_at)
-      const start = filters.startDate ? new Date(filters.startDate) : null
-      const end = filters.endDate ? new Date(filters.endDate) : null
+        const matchesPhone = item.phone.includes(filters.phone)
 
-      const matchesDate =
-        (!start || createdAt >= start) && (!end || createdAt <= end)
+        const matchesGender =
+          filters.gender === '' || item.gender === filters.gender
 
-      return matchesName && matchesPhone && matchesGender && matchesDate
-    })
-    .sort((a, b) => {
-      const dateA = new Date(a.created_at).getTime()
-      const dateB = new Date(b.created_at).getTime()
-      return filters.sort === 'desc' ? dateB - dateA : dateA - dateB
-    })
+        const createdAt = new Date(item.created_at)
+        const start = filters.startDate ? new Date(filters.startDate) : null
+        const end = filters.endDate ? new Date(filters.endDate) : null
 
-  setFilteredData(filtered)
-}
+        const matchesDate =
+          (!start || createdAt >= start) && (!end || createdAt <= end)
 
+        // ✅ 회원 여부 필터
+        const matchesMember =
+          filters.isMember === ''
+            ? true
+            : filters.isMember === 'true'
+              ? item.is_member === true
+              : item.is_member === false
+
+        return (
+          matchesName &&
+          matchesPhone &&
+          matchesGender &&
+          matchesDate &&
+          matchesMember
+        )
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.created_at).getTime()
+        const dateB = new Date(b.created_at).getTime()
+        return filters.sort === 'desc' ? dateB - dateA : dateA - dateB
+      })
+
+    setFilteredData(filtered)
+  }
 
   return (
     <main className="p-8 relative">

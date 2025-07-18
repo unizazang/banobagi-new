@@ -25,4 +25,5 @@ export type FilterValues = {
   endDate: string
   sort: 'asc' | 'desc'
   showHidden: boolean // ✅ 추가
+  isMember: '' | 'true' | 'false' // 👈 추가
 }

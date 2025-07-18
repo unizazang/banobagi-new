@@ -1,4 +1,3 @@
-// /app/admin/consults/components/FilterBar.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
@@ -9,7 +8,6 @@ export default function FilterBar({
 }: {
   onFilterChange: (filters: FilterValues) => void
 }) {
-  // ✅ showHidden 추가된 초기값 설정
   const [filters, setFilters] = useState<FilterValues>({
     name: '',
     phone: '',
@@ -17,7 +15,8 @@ export default function FilterBar({
     startDate: '',
     endDate: '',
     sort: 'desc', // 최신순 기본값
-    showHidden: false, // ✅ 숨김 포함 기본 false
+    showHidden: false,
+    isMember: '', // ✅ 초기값 추가
   })
 
   useEffect(() => {
@@ -55,6 +54,19 @@ export default function FilterBar({
         <option value="남성">남성</option>
       </select>
 
+      {/* 회원 여부 필터 - ✅ 수정된 값 */}
+      <select
+        className="border px-3 py-2 rounded"
+        value={filters.isMember}
+        onChange={(e) =>
+          setFilters({ ...filters, isMember: e.target.value as '' | 'true' | 'false' })
+        }
+      >
+        <option value="">전체 회원여부</option>
+        <option value="true">회원</option>
+        <option value="false">비회원</option>
+      </select>
+
       {/* 날짜 필터 */}
       <input
         type="date"
@@ -81,7 +93,7 @@ export default function FilterBar({
         <option value="asc">오래된순</option>
       </select>
 
-      {/* ✅ 숨김 포함 필터 */}
+      {/* 숨김 포함 */}
       <label className="text-sm flex items-center gap-1">
         <input
           type="checkbox"

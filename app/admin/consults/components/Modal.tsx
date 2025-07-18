@@ -4,18 +4,25 @@ import { useEffect, useState } from 'react'
 import { ConsultRequest } from '@/types/consult'
 import { getConsultLogs } from '@/lib/getConsultLogs'
 
+type ConsultLog = {
+  changed_field: string
+  old_value: string
+  new_value: string
+  changed_by: string
+  created_at: string
+}
+
 export default function Modal({ data, onClose }: { data: ConsultRequest; onClose: () => void }) {
   const [status, setStatus] = useState(data.status ?? '대기')
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState(data.note ?? '')
   const [isImportant, setIsImportant] = useState(data.is_important ?? false)
   const [isHidden, setIsHidden] = useState(data.is_hidden ?? false)
-  const [logs, setLogs] = useState<any[]>([])
+  const [logs, setLogs] = useState<ConsultLog[]>([])
 
   useEffect(() => {
     const fetchLogs = async () => {
       const result = await getConsultLogs(data.id, data.page_source as 'face' | 'lifting')
-
       setLogs(result)
     }
     fetchLogs()
@@ -105,6 +112,24 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
     }
   }
 
+  const renderLogMessage = (log: ConsultLog) => {
+    const icon = {
+      status: '📦',
+      note: '📝',
+      is_important: '⭐️',
+      is_hidden: '🙈',
+    }[log.changed_field] ?? '🔧'
+
+    const fieldLabel = {
+      status: '상태',
+      note: '메모',
+      is_important: '중요 표시',
+      is_hidden: '숨김',
+    }[log.changed_field] ?? log.changed_field
+
+    return `${icon} ${fieldLabel} 변경: "${log.old_value}" → "${log.new_value}" (${log.changed_by}, ${new Date(log.created_at).toLocaleString()})`
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-xl shadow-xl relative">
@@ -188,11 +213,7 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
           ) : (
             <ul className="text-xs border rounded p-2 bg-gray-50 space-y-1 max-h-48 overflow-y-auto">
               {logs.map((log, idx) => (
-                <li key={idx}>
-                  <strong>{log.changed_field}</strong> 변경: "{log.old_value}" → "{log.new_value}" (
-                  <span className="text-gray-500">{log.changed_by}</span>,{' '}
-                  {new Date(log.created_at).toLocaleString()})
-                </li>
+                <li key={idx}>{renderLogMessage(log)}</li>
               ))}
             </ul>
           )}
