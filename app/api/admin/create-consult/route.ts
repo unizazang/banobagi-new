@@ -14,12 +14,13 @@ export async function POST(req: Request) {
     is_member = false,
   } = body
 
-  // 1. URL 패턴 조회하여 surgery_id 자동 매핑
   let matchedSurgeryId: number | null = null
+  let matchedSurgeryTitle: string | null = null
 
+  // ✅ url_mappings 조회 시 title도 포함
   const { data: mappings, error: mappingError } = await supabaseFace
     .from('url_mappings')
-    .select('url_pattern, surgery_id')
+    .select('url_pattern, surgery_id, surgery_title')
 
   if (mappingError) {
     console.error('Failed to fetch url_mappings:', mappingError.message)
@@ -29,11 +30,11 @@ export async function POST(req: Request) {
   for (const mapping of mappings) {
     if (page_url.includes(mapping.url_pattern)) {
       matchedSurgeryId = mapping.surgery_id
+      matchedSurgeryTitle = mapping.surgery_title
       break
     }
   }
 
-  // 2. 신청서 insert
   const { error: insertError } = await supabaseFace
     .from('consult_requests')
     .insert([
@@ -45,6 +46,7 @@ export async function POST(req: Request) {
         phone,
         is_member,
         surgery_id: matchedSurgeryId,
+        surgery_title: matchedSurgeryTitle, // ✅ title까지 insert
       },
     ])
 
