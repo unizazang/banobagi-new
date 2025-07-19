@@ -5,9 +5,11 @@ import { ConsultRequest } from '@/types/consult' // ✅ 여기 추가
 export default function Table({
   data,
   onView,
+  onUpdate,
 }: {
   data: ConsultRequest[]
   onView: (item: ConsultRequest) => void
+  onUpdate: (id: number, fields: Partial<ConsultRequest>) => void
 }) {
   return (
     <div className="overflow-x-auto border rounded-lg shadow-sm">
@@ -53,11 +55,31 @@ export default function Table({
               </td>
               <td className="px-4 py-2">{item.status ?? '대기'}</td> {/* ✅ 값 표시 */}
               <td className="px-4 py-2">{item.is_member ? '회원' : '비회원'}</td> {/* ✅ 추가 */}
-              <td className="px-4 py-2 text-center"> {/* ✅ 열 데이터 */}
-        <span className={item.is_important ? 'text-yellow-400 text-xl' : 'text-gray-300'}>
-          ★
-        </span>
-      </td>
+              <td className="px-4 py-2 text-center">
+                <button
+                  onClick={async (e) => {
+                    e.stopPropagation()
+                    const res = await fetch('/api/admin/update-important', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        id: item.id,
+                        is_important: !item.is_important,
+                        page_source: item.page_source,
+                      }),
+                    })
+                    const result = await res.json()
+                    if (result.success) {
+                      onUpdate(item.id, { is_important: !item.is_important })
+                    } else {
+                      alert('업데이트 실패')
+                    }
+                  }}
+                  className={item.is_important ? 'text-yellow-400 text-xl' : 'text-gray-300'}
+                >
+                  ★
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
