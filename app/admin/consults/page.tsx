@@ -16,6 +16,15 @@ export default function ConsultsPage() {
   const [filteredData, setFilteredData] = useState<ConsultRequest[]>([])
   const [selectedItem, setSelectedItem] = useState<ConsultRequest | null>(null)
 
+  const handleUpdateItem = (id: number, fields: Partial<ConsultRequest>) => {
+    setOriginalData((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...fields } : item))
+    )
+    setFilteredData((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...fields } : item))
+    )
+  }
+
   useEffect(() => {
     // 초기에 face 데이터 불러오기
     getConsultRequests('face').then((data) => {
@@ -77,9 +86,9 @@ export default function ConsultsPage() {
       <FilterBar onFilterChange={handleFilterChange} />
       <StatsBar data={filteredData} /> {/* ✅ 통계 바 */}
       <ExportButton data={filteredData} />
-      <Table data={filteredData} onView={setSelectedItem} />
+      <Table data={filteredData} onView={setSelectedItem} onUpdate={handleUpdateItem} />
       {selectedItem && (
-        <Modal data={selectedItem} onClose={() => setSelectedItem(null)} />
+        <Modal data={selectedItem} onClose={() => setSelectedItem(null)} onUpdate={handleUpdateItem} />
       )}
     </main>
   )
