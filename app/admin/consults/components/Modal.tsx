@@ -4,7 +4,15 @@ import { useEffect, useState } from 'react'
 import { ConsultRequest } from '@/types/consult'
 import { getConsultLogs } from '@/lib/getConsultLogs'
 
-export default function Modal({ data, onClose }: { data: ConsultRequest; onClose: () => void }) {
+export default function Modal({
+  data,
+  onClose,
+  onUpdate,
+}: {
+  data: ConsultRequest
+  onClose: () => void
+  onUpdate: (id: number, fields: Partial<ConsultRequest>) => void
+}) {
   const [status, setStatus] = useState(data.status ?? '대기')
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState(data.note ?? '')
@@ -53,6 +61,7 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
     const result = await res.json()
     if (result.success) {
       setIsHidden(!isHidden)
+      onUpdate(data.id, { is_hidden: !isHidden })
       alert(`신청서가 ${!isHidden ? '숨김 처리' : '복구'}되었습니다.`)
       onClose()
     } else {
@@ -72,6 +81,7 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
     })
     const result = await res.json()
     if (result.success) {
+      onUpdate(data.id, { note })
       alert('메모가 저장되었습니다.')
       onClose()
     } else {
@@ -93,6 +103,7 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
       })
       const result = await res.json()
       if (result.success) {
+        onUpdate(data.id, { status })
         alert('상태가 업데이트되었습니다.')
         onClose()
       } else {
@@ -118,6 +129,7 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
     const result = await res.json()
     if (result.success) {
       setIsImportant(!isImportant)
+      onUpdate(data.id, { is_important: !isImportant })
       alert('중요 표시가 변경되었습니다.')
     } else {
       alert('업데이트 실패')
@@ -144,7 +156,52 @@ export default function Modal({ data, onClose }: { data: ConsultRequest; onClose
           <li><strong>회원 여부:</strong> {data.is_member ? '회원' : '비회원'}</li>
         </ul>
 
-        {/* 상태 / 메모 / 중요 / 숨김 핸들링 UI는 동일이므로 생략 */}
+        <div className="flex items-center gap-2 mb-4">
+          <button
+            onClick={handleToggleImportant}
+            className={isImportant ? 'text-yellow-400 text-xl' : 'text-gray-300 text-xl'}
+          >
+            ★
+          </button>
+          <button
+            onClick={handleToggleHidden}
+            className="border px-2 py-1 rounded text-sm"
+          >
+            {isHidden ? '숨김 해제' : '회원 숨김'}
+          </button>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="border px-2 py-1 rounded text-sm"
+          >
+            <option value="대기">대기</option>
+            <option value="진행중">진행중</option>
+            <option value="완료">완료</option>
+            <option value="취소">취소</option>
+          </select>
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="border px-2 py-1 rounded text-sm"
+          >
+            상태 변경
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <textarea
+            className="w-full border rounded p-2 text-sm"
+            rows={3}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+          <button
+            onClick={handleSaveNote}
+            className="mt-2 border px-2 py-1 rounded text-sm"
+          >
+            메모 저장
+          </button>
+        </div>
 
         <div className="mt-6">
           <h3 className="text-sm font-semibold mb-2">변경 로그</h3>
