@@ -98,7 +98,7 @@ export default function Modal({
         body: JSON.stringify({
           id: data.id,
           status,
-          page_source: data.page_source,
+          source: data.page_source,
         }),
       })
       const result = await res.json()
