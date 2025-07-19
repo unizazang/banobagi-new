@@ -8,6 +8,8 @@ import FilterBar from './components/FilterBar'
 import Modal from './components/Modal'
 import ExportButton from './components/ExportButton'
 import { ConsultRequest, FilterValues } from '@/types/consult'
+import StatsBar from './components/StatsBar'
+
 
 export default function ConsultsPage() {
   const [originalData, setOriginalData] = useState<ConsultRequest[]>([])
@@ -73,6 +75,7 @@ export default function ConsultsPage() {
     <main className="p-8 relative">
       <h1 className="text-2xl font-bold mb-4">콜팀 신청 내역 (윤곽)</h1>
       <FilterBar onFilterChange={handleFilterChange} />
+      <StatsBar data={filteredData} /> {/* ✅ 통계 바 */}
       <ExportButton data={filteredData} />
       <Table data={filteredData} onView={setSelectedItem} />
       {selectedItem && (
