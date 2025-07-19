@@ -4,6 +4,13 @@ import { useEffect, useState } from 'react'
 import { ConsultRequest } from '@/types/consult'
 import { getConsultLogs } from '@/lib/getConsultLogs'
 
+function normalizeSource(value: string): 'face' | 'lifting' {
+  if (value === 'face' || value === 'lifting') return value
+  if (value === 'B') return 'lifting'
+  if (value === 'C') return 'face'
+  return 'face'
+}
+
 export default function Modal({
   data,
   onClose,
@@ -21,13 +28,13 @@ export default function Modal({
 
   const [logs, setLogs] = useState<any[]>([])
   const [filteredLogs, setFilteredLogs] = useState<any[]>([])
-  const [logUser, setLogUser] = useState<string>('') // 작성자 필터
-  const [logStart, setLogStart] = useState<string>('') // 시작일
-  const [logEnd, setLogEnd] = useState<string>('') // 종료일
+  const [logUser, setLogUser] = useState<string>('')
+  const [logStart, setLogStart] = useState<string>('')
+  const [logEnd, setLogEnd] = useState<string>('')
 
   useEffect(() => {
     const fetchLogs = async () => {
-      const result = await getConsultLogs(data.id, data.page_source as 'face' | 'lifting')
+      const result = await getConsultLogs(data.id, normalizeSource(data.page_source))
       setLogs(result)
       setFilteredLogs(result)
     }
@@ -40,10 +47,10 @@ export default function Modal({
       filtered = filtered.filter((log) => log.changed_by === logUser)
     }
     if (logStart) {
-      filtered = filtered.filter((log) => new Date(log.created_at) >= new Date(logStart))
+      filtered = filtered.filter((log) => new Date(log.changed_at) >= new Date(logStart))
     }
     if (logEnd) {
-      filtered = filtered.filter((log) => new Date(log.created_at) <= new Date(logEnd))
+      filtered = filtered.filter((log) => new Date(log.changed_at) <= new Date(logEnd))
     }
     setFilteredLogs(filtered)
   }, [logUser, logStart, logEnd, logs])
@@ -55,7 +62,7 @@ export default function Modal({
       body: JSON.stringify({
         id: data.id,
         is_hidden: !isHidden,
-        page_source: data.page_source,
+        page_source: normalizeSource(data.page_source), // ✅ 수정
       }),
     })
     const result = await res.json()
@@ -76,7 +83,7 @@ export default function Modal({
       body: JSON.stringify({
         id: data.id,
         note,
-        page_source: data.page_source,
+        page_source: normalizeSource(data.page_source), // ✅ 수정
       }),
     })
     const result = await res.json()
@@ -91,6 +98,13 @@ export default function Modal({
 
   const handleSave = async () => {
     setLoading(true)
+    const source = normalizeSource(data.page_source)
+    console.log('Sending status update:', {
+      id: data.id,
+      status,
+      source,
+    })
+
     try {
       const res = await fetch('/api/admin/update-status', {
         method: 'POST',
@@ -98,7 +112,7 @@ export default function Modal({
         body: JSON.stringify({
           id: data.id,
           status,
-          source: data.page_source,
+          source,
         }),
       })
       const result = await res.json()
@@ -123,7 +137,7 @@ export default function Modal({
       body: JSON.stringify({
         id: data.id,
         is_important: !isImportant,
-        page_source: data.page_source,
+        page_source: normalizeSource(data.page_source), // ✅ 수정
       }),
     })
     const result = await res.json()
@@ -223,7 +237,7 @@ export default function Modal({
                 <li key={idx}>
                   <strong>{log.changed_field}</strong> 변경: "{log.old_value}" → "{log.new_value}" (
                   <span className="text-gray-500">{log.changed_by}</span>,{' '}
-                  {new Date(log.created_at).toLocaleString()})
+                  {new Date(log.changed_at).toLocaleString()})
                 </li>
               ))}
             </ul>

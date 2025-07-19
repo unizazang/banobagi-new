@@ -18,6 +18,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, error: '이전 상태 조회 실패' }, { status: 500 })
   }
 
+
+  
   const previousStatus = existing.status
 
   // 2. 상태값이 변경되지 않았다면 종료
@@ -33,6 +35,7 @@ export async function POST(req: Request) {
 
   if (updateError) {
     console.error(updateError)
+    console.error('🔥 Update 실패:', updateError) // 추가
     return NextResponse.json({ success: false }, { status: 500 })
   }
 

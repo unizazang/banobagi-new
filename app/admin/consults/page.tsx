@@ -1,4 +1,3 @@
-// /app/admin/consults/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -9,7 +8,6 @@ import Modal from './components/Modal'
 import ExportButton from './components/ExportButton'
 import { ConsultRequest, FilterValues } from '@/types/consult'
 import StatsBar from './components/StatsBar'
-
 
 export default function ConsultsPage() {
   const [originalData, setOriginalData] = useState<ConsultRequest[]>([])
@@ -26,7 +24,6 @@ export default function ConsultsPage() {
   }
 
   useEffect(() => {
-    // 초기에 face 데이터 불러오기
     getConsultRequests('face').then((data) => {
       setOriginalData(data)
       setFilteredData(data)
@@ -36,8 +33,7 @@ export default function ConsultsPage() {
   const handleFilterChange = (filters: FilterValues) => {
     const filtered = originalData
       .filter((item) => {
-        // ✅ 숨김 여부 조건 분기
-        if (!filters.showHidden && item.is_hidden) return false
+        if (!filters.showHidden && item.is_hidden === true) return false // ✅ 수정됨
 
         const matchesName = item.customer_name
           .toLowerCase()
@@ -55,7 +51,6 @@ export default function ConsultsPage() {
         const matchesDate =
           (!start || createdAt >= start) && (!end || createdAt <= end)
 
-        // ✅ 회원 여부 필터
         const matchesMember =
           filters.isMember === ''
             ? true
@@ -84,7 +79,7 @@ export default function ConsultsPage() {
     <main className="p-8 relative">
       <h1 className="text-2xl font-bold mb-4">콜팀 신청 내역 (윤곽)</h1>
       <FilterBar onFilterChange={handleFilterChange} />
-      <StatsBar data={filteredData} /> {/* ✅ 통계 바 */}
+      <StatsBar data={filteredData} />
       <ExportButton data={filteredData} />
       <Table data={filteredData} onView={setSelectedItem} onUpdate={handleUpdateItem} />
       {selectedItem && (

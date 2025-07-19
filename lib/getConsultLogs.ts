@@ -8,7 +8,7 @@ export async function getConsultLogs(id: number, source: 'face' | 'lifting') {
     .from('consult_logs')
     .select('*')
     .eq('consult_request_id', id)
-    .order('created_at', { ascending: false })
+    .order('changed_at', { ascending: false }) // ✅ 수정됨
 
   if (error) {
     console.error('로그 가져오기 실패:', error)
