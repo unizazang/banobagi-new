@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>바노바기 성형외과 - HUB</title>
+
+  <!-- SEO 메타태그 -->
+  <meta name="description" content="동안/윤곽 브랜드 허브 페이지" />
+  <meta property="og:title" content="바노바기 성형외과 HUB" />
+  <meta property="og:description" content="동안/윤곽 브랜드를 선택하세요." />
+  <meta property="og:image" content="/images/og-image.jpg" />
+
+  <!-- 스타일시트 -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>바노바기 성형외과</h1>
+    <p>브랜드를 선택해주세요</p>
+
+    <div class="card-grid">
+      <div class="card" style="background-image: url('/images/lifting.jpg');" onclick="goTo('https://banobagilifting.com')">
+        <span>동안 성형</span>
+      </div>
+      <div class="card" style="background-image: url('/images/face.jpg');" onclick="goTo('https://banobagiface.com')">
+        <span>윤곽 성형</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="lang-popup" id="langPopup">
+    <p>
+      언어를 선택하세요:
+      <button onclick="setLang('ko')">한국어</button>
+      <button onclick="setLang('en')">English</button>
+    </p>
+  </div>
+
+  <!-- 스크립트 -->
+  <script src="main.js"></script>
+</body>
+</html>
