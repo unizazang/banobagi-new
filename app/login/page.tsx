@@ -16,12 +16,29 @@ export default function LoginPage() {
     e.preventDefault()
     setError('')
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error) {
+    const { data, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (loginError) {
       setError('로그인에 실패했습니다.')
       return
     }
 
+    // 로그인 후 유저 정보 확인
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    const role = user?.user_metadata?.role
+    if (role !== 'callteam') {
+      setError('콜팀 계정이 아닙니다.')
+      await supabase.auth.signOut()
+      return
+    }
+
+    // 콜팀 계정이면 이동
     router.replace('/admin/consults')
   }
 

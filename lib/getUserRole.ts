@@ -1,23 +1,18 @@
-'use server'
+// /lib/getUserRole.ts
+import { createClient } from './supabase-admin'
 
-import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-
-export async function getUserRole() {
-  const supabase = createServerComponentClient({ cookies })
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-
-  const userId = session?.user?.id
-  if (!userId) return null
-
+export async function getUserRole(email: string, source: 'face' | 'lifting') {
+  const supabase = createClient(source)
   const { data, error } = await supabase
     .from('users')
     .select('role')
-    .eq('id', userId)
+    .eq('email', email)
     .single()
 
-  if (error || !data) return null
+  if (error || !data) {
+    console.error('권한 조회 실패', error)
+    return null
+  }
+
   return data.role as string
 }
