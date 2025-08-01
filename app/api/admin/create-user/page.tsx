@@ -30,7 +30,8 @@ export default function CreateUserPage() {
       }
 
       const userEmail = session.user.email!
-      const role = await getUserRole(userEmail, 'face') // 기본 face에서 조회
+      // 브라우저 클라이언트를 사용하여 현재 사용자 권한 조회
+      const role = await getUserRole(userEmail)
 
       if (role === 'admin') {
         setAuthorized(true)
