@@ -3,11 +3,11 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/lib/supabase'
 import { getUserRole } from '@/lib/getUserRole'
 
 export default function CreateUserPage() {
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
   const router = useRouter()
 
   const [loading, setLoading] = useState(true)

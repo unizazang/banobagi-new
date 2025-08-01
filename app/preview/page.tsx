@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic'
 export default async function PreviewPage({
   searchParams,
 }: {
-  searchParams?: { slug?: string }
+  searchParams?: Promise<{ slug?: string }>
 }) {
-  const slug = searchParams?.slug
+  const params = await searchParams
+  const slug = params?.slug
 
   if (!slug || typeof slug !== 'string') {
     return <p className="p-8 text-red-500">⛔️ 미리보기 오류: slug 파라미터가 필요합니다.</p>
