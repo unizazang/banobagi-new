@@ -1,45 +1,47 @@
 // /app/api/admin/create-callteam/route.ts
 
+import { supabaseLifting, supabaseFace } from '@/lib/supabase-admin'
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-admin'
 
+// ✅ POST 요청으로 콜팀 계정 생성
 export async function POST(req: Request) {
-  const { email, password } = await req.json()
+  const body = await req.json()
 
-  if (!email || !password) {
-    return NextResponse.json({ error: '이메일과 비밀번호가 필요합니다.' }, { status: 400 })
+  const { email, password, brand } = body as {
+    email: string
+    password: string
+    brand: 'lifting' | 'face'
   }
 
-  const supabase = createClient('face')
+  if (!email || !password || !brand) {
+    return NextResponse.json({ error: '이메일, 비밀번호, 브랜드는 필수입니다.' }, { status: 400 })
+  }
 
-  // ✅ 1. 콜팀 계정 생성
-  const { data: userData, error: createError } = await supabase.auth.admin.createUser({
+  // ✅ 브랜드에 따라 Supabase 인스턴스 선택
+  const supabase = brand === 'lifting' ? supabaseLifting : supabaseFace
+
+  // ✅ Supabase auth를 통해 계정 생성
+  const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
     email,
     password,
-    user_metadata: {
-      role: 'callteam',
-    },
+    user_metadata: { role: 'callteam' },
   })
-console.log('LOGIN ERROR:', createError)
-console.log('LOGIN DATA:', userData)
-  if (createError || !userData?.user?.id) {
-    return NextResponse.json({ error: '계정 생성 실패', detail: createError?.message }, { status: 500 })
+
+  if (signUpError) {
+    console.error('❌ 사용자 생성 실패:', signUpError)
+    return NextResponse.json({ error: '콜팀 계정 생성 실패', details: signUpError.message }, { status: 500 })
   }
 
-  const userId = userData.user.id
-
-  // ✅ 2. 이메일 인증 강제 완료
-  const { error: confirmError } = await supabase.auth.admin.updateUserById(userId, {
-    email_confirm: true,
+  // ✅ users 테이블에도 삽입
+  const { error: userInsertError } = await supabase.from('users').insert({
+    email,
+    role: 'callteam',
   })
 
-  if (confirmError) {
-    return NextResponse.json({ error: '이메일 인증 처리 실패', detail: confirmError.message }, { status: 500 })
+  if (userInsertError) {
+    console.error('❌ users 테이블 삽입 실패:', userInsertError)
+    return NextResponse.json({ error: 'users 테이블 추가 실패', details: userInsertError.message }, { status: 500 })
   }
 
-  return NextResponse.json({
-    success: true,
-    message: '콜팀 계정 생성 및 이메일 인증 완료',
-    user_id: userId,
-  })
+  return NextResponse.json({ success: true, userId: signUpData.user?.id })
 }
