@@ -19,18 +19,21 @@ type ConsultRequest = {
   note?: string
 }
 
-export async function getConsultRequests(source: Source): Promise<ConsultRequest[]> {
+
+export async function getConsultRequests(
+  source: 'lifting' | 'face'
+): Promise<ConsultRequest[]> {
   const supabase = getSupabaseAdminClient(source)
 
-  // 1. consult_requests 조회
   const { data: requests, error: requestError } = await supabase
     .from('consult_requests')
     .select('*')
     .order('created_at', { ascending: false })
 
   if (requestError || !requests) {
-    throw new Error(`Failed to fetch consult requests from ${source}: ${requestError?.message}`)
+    throw new Error(`❌ consult_requests 로딩 실패 (${source}): ${requestError?.message}`)
   }
+
 
   // 2. url_mappings 조회
   const { data: mappings, error: mappingError } = await supabase

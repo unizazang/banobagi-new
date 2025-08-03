@@ -1,6 +1,6 @@
 // /lib/supabase-admin.ts
 import { createServerClient } from '@supabase/ssr'
-import type { SupabaseClient } from '@supabase/supabase-js'
+import { type SupabaseClient } from '@supabase/supabase-js'
 
 function getEnv(key: string): string {
   const value = process.env[key]
@@ -11,7 +11,7 @@ function getEnv(key: string): string {
   return value
 }
 
-// ✅ 서비스 키 기반 Supabase 클라이언트 (지연 실행 함수)
+// ✅ 동적 Supabase 클라이언트 생성 (서비스 키 기반, 서버 전용)
 export function getSupabaseAdminClient(brand: 'lifting' | 'face'): SupabaseClient {
   const url = getEnv(
     brand === 'lifting' ? 'SUPABASE_URL_LIFTING' : 'SUPABASE_URL_FACE'
