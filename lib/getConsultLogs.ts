@@ -1,8 +1,8 @@
 // /lib/getConsultLogs.ts
-import { supabaseFace, supabaseLifting } from './supabase-admin'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function getConsultLogs(id: number, source: 'face' | 'lifting') {
-  const supabase = source === 'face' ? supabaseFace : supabaseLifting
+  const supabase = getSupabaseAdminClient(source)
 
   const { data, error } = await supabase
     .from('consult_logs')
