@@ -1,12 +1,17 @@
-import { supabaseLifting } from '@/lib/supabase-admin'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(request: Request) {
-  const body = await request.json()
+const body = await request.json()
 
-  const email = body.email ?? 'callteam@lifting.com'
-  const password = body.password ?? 'LiftingPass123!'
+  const { email, password, brand } = body as {
+    email: string
+    password: string
+    brand: 'lifting' | 'face'
+  }
 
-  const { data, error } = await supabaseLifting.auth.admin.createUser({
+  // ✅ lifting 브랜드 기준 Supabase 클라이언트 생성
+  const supabase = getSupabaseAdminClient(brand)
+  const { data, error } = await supabase.auth.admin.createUser({
     email,
     password,
     user_metadata: {

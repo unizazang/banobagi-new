@@ -1,11 +1,12 @@
 // /app/api/admin/create-consult/route.ts
 import { NextResponse } from 'next/server'
-import { supabaseFace } from '@/lib/supabase-admin'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: Request) {
   const body = await req.json()
 
   const {
+    brand, // 'lifting' | 'face'
     page_source,
     page_url,
     customer_name,
@@ -17,10 +18,18 @@ export async function POST(req: Request) {
   let matchedSurgeryId: number | null = null
   let matchedSurgeryTitle: string | null = null
 
+
+  if (!brand || (brand !== 'lifting' && brand !== 'face')) {
+    return NextResponse.json({ success: false, error: '브랜드 값이 유효하지 않습니다.' }, { status: 400 })
+  }
+
+  const supabase = getSupabaseAdminClient(brand)
+  
   // ✅ url_mappings 조회 시 title도 포함
-  const { data: mappings, error: mappingError } = await supabaseFace
+  const { data: mappings, error: mappingError } = await supabase
     .from('url_mappings')
     .select('url_pattern, surgery_id, surgery_title')
+
 
   if (mappingError) {
     console.error('Failed to fetch url_mappings:', mappingError.message)
@@ -35,7 +44,7 @@ export async function POST(req: Request) {
     }
   }
 
-  const { error: insertError } = await supabaseFace
+  const { error: insertError } = await supabase
     .from('consult_requests')
     .insert([
       {

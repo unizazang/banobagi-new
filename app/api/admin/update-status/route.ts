@@ -1,10 +1,11 @@
 // /app/api/admin/update-status/route.ts
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-admin'
+import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: Request) {
   const { id, status, source = 'face' } = await req.json()
-  const supabase = createClient(source) // 'face' or 'lifting'
+const supabase = getSupabaseAdminClient(source)
+
 
   // 1. 기존 상태값 조회
   const { data: existing, error: fetchError } = await supabase
