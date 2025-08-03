@@ -1,17 +1,18 @@
+// /app/admin/consults/components/ConsultsClient.tsx
+
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getConsultRequests } from '@/lib/getConsultRequests'
 import Table from './Table'
 import FilterBar from './FilterBar'
 import Modal from './Modal'
 import ExportButton from './ExportButton'
-import { ConsultRequest, FilterValues } from '@/types/consult'
 import StatsBar from './StatsBar'
+import { ConsultRequest, FilterValues } from '@/types/consult'
 
-export default function ConsultsClient() {
-  const [originalData, setOriginalData] = useState<ConsultRequest[]>([])
-  const [filteredData, setFilteredData] = useState<ConsultRequest[]>([])
+export default function ConsultsClient({ initialData }: { initialData: ConsultRequest[] }) {
+  const [originalData, setOriginalData] = useState<ConsultRequest[]>(initialData)
+  const [filteredData, setFilteredData] = useState<ConsultRequest[]>(initialData)
   const [selectedItem, setSelectedItem] = useState<ConsultRequest | null>(null)
 
   const handleUpdateItem = (id: number, fields: Partial<ConsultRequest>) => {
@@ -22,13 +23,6 @@ export default function ConsultsClient() {
       prev.map((item) => (item.id === id ? { ...item, ...fields } : item))
     )
   }
-
-  useEffect(() => {
-    getConsultRequests('face').then((data) => {
-      setOriginalData(data)
-      setFilteredData(data)
-    })
-  }, [])
 
   const handleFilterChange = (filters: FilterValues) => {
     const filtered = originalData
