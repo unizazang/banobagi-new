@@ -1,5 +1,6 @@
 // /lib/getConsultRequests.ts
-import { supabaseLifting, supabaseFace } from './supabase-admin'
+// import { supabaseLifting, supabaseFace } from './supabase-admin'
+import { getSupabaseAdminClient } from './supabase-admin'
 
 type Source = 'lifting' | 'face'
 
@@ -20,7 +21,9 @@ type ConsultRequest = {
 }
 
 export async function getConsultRequests(source: Source): Promise<ConsultRequest[]> {
-  const supabase = source === 'lifting' ? supabaseLifting : supabaseFace
+  // const supabase = source === 'lifting' ? supabaseLifting : supabaseFace
+
+  const supabase = getSupabaseAdminClient(source)
 
   // 1. consult_requests 조회
   const { data: requests, error: requestError } = await supabase
