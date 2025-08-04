@@ -77,7 +77,7 @@ export default function Table({
                       body: JSON.stringify({
                         id: item.id,
                         is_important: !item.is_important,
-                        page_source: normalizeSource(item.page_source),
+                        source: normalizeSource(item.page_source),
                       }),
                     })
                     const result = await res.json()

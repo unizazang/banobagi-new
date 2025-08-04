@@ -56,13 +56,14 @@ export default function Modal({
   }, [logUser, logStart, logEnd, logs])
 
   const handleToggleHidden = async () => {
+    const source = normalizeSource(data.page_source)
     const res = await fetch('/api/admin/update-hidden', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: data.id,
         is_hidden: !isHidden,
-        page_source: normalizeSource(data.page_source), // ✅ 수정
+        source,    // ← 여기!!
       }),
     })
     const result = await res.json()
@@ -77,13 +78,14 @@ export default function Modal({
   }
 
   const handleSaveNote = async () => {
+    const source = normalizeSource(data.page_source)
     const res = await fetch('/api/admin/update-note', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: data.id,
         note,
-        page_source: normalizeSource(data.page_source), // ✅ 수정
+        source,    // ← 여기!!
       }),
     })
     const result = await res.json()
@@ -97,6 +99,7 @@ export default function Modal({
   }
 
   const handleSave = async () => {
+    
     setLoading(true)
     const source = normalizeSource(data.page_source)
     console.log('Sending status update:', {
@@ -131,13 +134,14 @@ export default function Modal({
   }
 
   const handleToggleImportant = async () => {
+    const source = normalizeSource(data.page_source)
     const res = await fetch('/api/admin/update-important', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         id: data.id,
         is_important: !isImportant,
-        page_source: normalizeSource(data.page_source), // ✅ 수정
+        source
       }),
     })
     const result = await res.json()

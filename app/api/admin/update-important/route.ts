@@ -2,58 +2,36 @@ import { NextResponse } from 'next/server'
 import { getSupabaseAdminClient } from '@/lib/supabase-admin'
 
 export async function POST(req: Request) {
-  const { id, is_important, page_source } = await req.json()
+  const { id, is_important, source } = await req.json()
 
-  if (page_source !== 'face' && page_source !== 'lifting') {
-    return NextResponse.json({ success: false, error: 'Invalid page_source' }, { status: 400 })
+  if (source !== 'face' && source !== 'lifting') {
+    return NextResponse.json({ success: false, error: 'Invalid source' }, { status: 400 })
   }
 
-const supabase = getSupabaseAdminClient(page_source)
+  const supabase = getSupabaseAdminClient(source)
 
-  // 1. 기존 값 조회
+  // Modified: maybeSingle() 사용하여 0 rows 에러 방지
   const { data: existing, error: fetchError } = await supabase
     .from('consult_requests')
     .select('is_important')
     .eq('id', id)
-    .single()
+    .maybeSingle()
+  if (fetchError) console.error('[update-important] 조회 에러:', fetchError)
 
-  if (fetchError || !existing) {
-    console.error('기존 중요 표시 조회 실패:', fetchError)
-    return NextResponse.json({ success: false, error: '기존 값 조회 실패' }, { status: 500 })
-  }
-
-  const previousValue = existing.is_important ?? false
-
-  // 2. 변경되지 않았다면 종료
+  const previousValue = existing?.is_important ?? false
   if (previousValue === is_important) {
     return NextResponse.json({ success: true, message: '변경 없음' })
   }
 
-  // 3. 업데이트
-  const { error: updateError } = await supabase
+  // Modified: 직접 update 수행
+  const { error } = await supabase
     .from('consult_requests')
     .update({ is_important })
     .eq('id', id)
 
-  if (updateError) {
-    console.error(updateError)
-    return NextResponse.json({ success: false }, { status: 500 })
-  }
-
-  // 4. 로그 저장
-  const { error: logError } = await supabase
-    .from('consult_logs')
-    .insert({
-      consult_request_id: id,
-      changed_field: 'is_important',
-      old_value: previousValue.toString(),
-      new_value: is_important.toString(),
-      changed_by: 'callteam@' + page_source + '.com',
-    })
-
-  if (logError) {
-    console.error('로그 저장 실패:', logError)
-    return NextResponse.json({ success: true, warning: '로그 저장 실패' })
+  if (error) {
+    console.error('[update-important] 업데이트 실패:', error)
+    return NextResponse.json({ success: false, error }, { status: 500 })
   }
 
   return NextResponse.json({ success: true })
