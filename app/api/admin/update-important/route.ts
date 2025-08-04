@@ -15,9 +15,9 @@ export async function POST(req: Request) {
   // 2) Admin 권한 클라이언트 (supabase-ssr에 서비스 역할 키 전달)
   const supabase = getSupabaseAdminClient(source)
 
-  // ──────────────────────────────────────
+  // ────────────────────────────────
   // ❌ 기존에 있던 .select('is_important') 조회 로직을 모두 제거했습니다.
-  // ──────────────────────────────────────
+  // ────────────────────────────────
 
   // 3) 바로 업데이트만 수행
   const { error } = await supabase
