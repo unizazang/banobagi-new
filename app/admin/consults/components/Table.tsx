@@ -1,6 +1,7 @@
 'use client'
 
 import { ConsultRequest } from '@/types/consult'
+import useUser from '@/lib/useUser'
 
 function normalizeSource(value: string): 'face' | 'lifting' {
   if (value === 'face' || value === 'lifting') return value
@@ -18,6 +19,8 @@ export default function Table({
   onView: (item: ConsultRequest) => void
   onUpdate: (id: number, fields: Partial<ConsultRequest>) => void
 }) {
+
+  const user = useUser()
   return (
     <div className="overflow-x-auto border rounded-lg shadow-sm">
       <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -78,6 +81,7 @@ export default function Table({
                         id: item.id,
                         is_important: !item.is_important,
                         source: normalizeSource(item.page_source),
+                        userEmail: user?.email, // ← 추가!
                       }),
                     })
                     const result = await res.json()

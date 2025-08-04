@@ -26,19 +26,19 @@ export default function LoginPage() {
       return
     }
 
-    // 로그인 후 유저 정보 확인
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    // 로그인 후 이메일로 callteam_roles에서 직접 role 확인
+    const { data: roleData, error: roleError } = await supabase
+      .from('callteam_roles')
+      .select('role')
+      .eq('email', email.toLowerCase().trim()) // 이메일 소문자, 공백 제거 필수
+      .single()
 
-    const role = user?.user_metadata?.role
-    if (role !== 'callteam') {
+    if (roleError || roleData?.role !== 'callteam') {
       setError('콜팀 계정이 아닙니다.')
       await supabase.auth.signOut()
       return
     }
 
-    // 콜팀 계정이면 이동
     router.replace('/admin/consults')
   }
 

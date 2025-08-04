@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { ConsultRequest } from '@/types/consult'
 import { getConsultLogs } from '@/lib/getConsultLogs'
+import useUser from '@/lib/useUser'
 
 function normalizeSource(value: string): 'face' | 'lifting' {
   if (value === 'face' || value === 'lifting') return value
@@ -20,6 +21,7 @@ export default function Modal({
   onClose: () => void
   onUpdate: (id: number, fields: Partial<ConsultRequest>) => void
 }) {
+  const user = useUser()
   const [status, setStatus] = useState(data.status ?? '대기')
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState(data.note ?? '')
@@ -64,6 +66,7 @@ export default function Modal({
         id: data.id,
         is_hidden: !isHidden,
         source,    // ← 여기!!
+        userEmail: user?.email, // ← 추가!
       }),
     })
     const result = await res.json()
@@ -86,6 +89,7 @@ export default function Modal({
         id: data.id,
         note,
         source,    // ← 여기!!
+        userEmail: user?.email, // ← 추가!
       }),
     })
     const result = await res.json()
@@ -116,6 +120,7 @@ export default function Modal({
           id: data.id,
           status,
           source,
+          userEmail: user?.email, // ← 추가!
         }),
       })
       const result = await res.json()
@@ -124,7 +129,7 @@ export default function Modal({
         alert('상태가 업데이트되었습니다.')
         onClose()
       } else {
-        alert('업데이트 실패')
+        alert(`업데이트 실패: ${result.error}`)
       }
     } catch (err) {
       alert('오류 발생')
@@ -141,7 +146,8 @@ export default function Modal({
       body: JSON.stringify({
         id: data.id,
         is_important: !isImportant,
-        source
+        source,
+        userEmail: user?.email, // ← 추가!
       }),
     })
     const result = await res.json()
