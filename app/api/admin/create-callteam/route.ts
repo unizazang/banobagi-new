@@ -40,10 +40,18 @@ export async function POST(req: Request) {
 
   // ✅ users 테이블에도 삽입
   const { error: userInsertError } = await supabase.from('users').insert({
+    id: signUpData.user!.id,     // ← Auth에서 만들어진 UUID를 그대로 넣어줍니다
     email,
     role: 'callteam',
-  })
+})
 
+
+// callteam_roles에도 넣기 (id 컬럼은 auth.users.id FK)
+await supabase.from('callteam_roles').insert({
+  id: signUpData.user!.id,
+  email,
+  role: 'callteam',
+})
   if (userInsertError) {
     console.error('❌ users 테이블 삽입 실패:', userInsertError)
     return NextResponse.json(
