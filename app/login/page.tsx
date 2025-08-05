@@ -26,11 +26,13 @@ export default function LoginPage() {
       return
     }
 
+    const cleanEmail = (email || '').toLowerCase().trim();
+
     // 로그인 후 이메일로 callteam_roles에서 직접 role 확인
     const { data: roleData, error: roleError } = await supabase
       .from('callteam_roles')
       .select('role')
-      .eq('email', email.toLowerCase().trim()) // 이메일 소문자, 공백 제거 필수
+      .eq('email', email) // 이메일 소문자, 공백 제거 필수
       .maybeSingle()
 
       console.log('콜팀 role 쿼리:', { email, roleData, roleError })
