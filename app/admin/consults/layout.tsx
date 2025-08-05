@@ -5,6 +5,9 @@ import { createServerClient } from '@supabase/ssr'
 import { redirect } from 'next/navigation'
 import type { ReactNode } from 'react'
 
+const cookieStore = await cookies()
+console.log('SSR에서 쿠키:', [...cookieStore.getAll()])
+
 const SUPABASE_URL = process.env.SUPABASE_URL_FACE!
 const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY_FACE! // ✅ anon key 사용
 // 또는 서비스 키를 직접 넣고 싶으면 아래 주석을 풀어주세요

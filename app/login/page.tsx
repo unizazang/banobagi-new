@@ -39,8 +39,8 @@ export default function LoginPage() {
       return
     }
 
-    // router.replace('/admin/consults')
-  window.location.href = '/admin/consults'
+    router.replace('/admin/consults')
+  // window.location.href = '/admin/consults'
   }
 
   return (
