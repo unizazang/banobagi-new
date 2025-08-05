@@ -31,8 +31,9 @@ export default function LoginPage() {
       .from('callteam_roles')
       .select('role')
       .eq('email', email.toLowerCase().trim()) // 이메일 소문자, 공백 제거 필수
-      .single()
+      .maybeSingle()
 
+      console.log('콜팀 role 쿼리:', { email, roleData, roleError })
     if (roleError || roleData?.role !== 'callteam') {
       setError('콜팀 계정이 아닙니다.')
       await supabase.auth.signOut()
